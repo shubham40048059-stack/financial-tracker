@@ -81,7 +81,8 @@ def render_dashboard(df: pd.DataFrame) -> None:
     st.title("Financial Overview")
     st.caption("A quick view of your income, expenses, balance and transaction patterns.")
 
-    st.info("You're viewing demo data. This dataset contains synthetic transactions for demonstration purposes.")
+    with st.container(key="fintrack-demo-notice"):
+        st.info("You're viewing demo data. This dataset contains synthetic transactions for demonstration purposes.")
     if st.button("Upload Your Own Data"):
         st.session_state.page = "📁 Upload Data"
         st.rerun()
@@ -105,28 +106,29 @@ def render_dashboard(df: pd.DataFrame) -> None:
 
     metrics = financial_overview(filtered)
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    cards = [
-        ("Current Balance", metrics["current_balance"], "🏦"),
-        ("Total Income", metrics["total_income"], "💰"),
-        ("Total Expenses", metrics["total_expenses"], "💸"),
-        ("Net Cash Flow", metrics["net_cash_flow"], "📈"),
-        ("Number of Transactions", metrics["transaction_count"], "🧾"),
-        ("Average Expense", metrics["average_expense"], "📉"),
-    ]
+    with st.container(key="fintrack-metrics"):
+        metric_columns = st.columns(6)
+        cards = [
+            ("Current Balance", metrics["current_balance"], "🏦"),
+            ("Total Income", metrics["total_income"], "💰"),
+            ("Total Expenses", metrics["total_expenses"], "💸"),
+            ("Net Cash Flow", metrics["net_cash_flow"], "📈"),
+            ("Number of Transactions", metrics["transaction_count"], "🧾"),
+            ("Average Expense", metrics["average_expense"], "📉"),
+        ]
 
-    for i, (label, value, icon) in enumerate(cards):
-        container = [col1, col2, col3, col4, col5, col6][i]
-        with container:
-            st.markdown(
-                f"""
-                <div style="padding:1rem; border-radius:0.75rem; background:#f5f7fa; border:1px solid #e3e8ef; margin-bottom:1rem;">
-                    <div style="font-size:0.8rem; color:#64748b;">{icon} {label}</div>
-                    <div style="font-size:1.5rem; font-weight:700; margin-top:0.25rem;">{format_inr(value)}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        for container, (label, value, icon) in zip(metric_columns, cards):
+            value_class = "positive" if label == "Total Income" or (label in {"Current Balance", "Net Cash Flow"} and value >= 0) else "negative" if label in {"Current Balance", "Net Cash Flow"} and value < 0 else ""
+            with container:
+                st.markdown(
+                    f"""
+                    <div class="fintrack-metric-card">
+                        <div class="fintrack-metric-label">{icon} {label}</div>
+                        <div class="fintrack-metric-value {value_class}">{format_inr(value)}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
     st.markdown("## Your Financial Summary")
     income_total = metrics["total_income"]
@@ -405,6 +407,35 @@ def main() -> None:
     st.markdown(
         """
         <style>
+        [data-testid="stAppViewContainer"] {
+            background:
+                radial-gradient(ellipse at 8% 8%, rgba(87, 170, 216, 0.08), transparent 32rem),
+                radial-gradient(ellipse at 92% 18%, rgba(43, 166, 132, 0.07), transparent 30rem),
+                linear-gradient(135deg, #f5f9ff 0%, #eefaf7 50%, #f8fbff 100%);
+        }
+        [data-testid="stMain"],
+        [data-testid="stMainBlockContainer"] {
+            background: transparent;
+        }
+        [data-testid="stMainBlockContainer"] {
+            color: #18334f;
+        }
+        [data-testid="stMainBlockContainer"] h1,
+        [data-testid="stMainBlockContainer"] h2,
+        [data-testid="stMainBlockContainer"] h3 {
+            color: #173653;
+            letter-spacing: -0.025em;
+        }
+        [data-testid="stMainBlockContainer"] h1 {
+            font-weight: 750;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stCaptionContainer"] {
+            color: #64778b;
+        }
+        [data-testid="stSidebar"] {
+            background: rgba(246, 250, 253, 0.96);
+            border-right: 1px solid rgba(89, 119, 143, 0.12);
+        }
         [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
             border: 1px solid rgba(100, 116, 139, 0.18);
             border-radius: 0.9rem;
@@ -480,6 +511,101 @@ def main() -> None:
         }
         [data-testid="stMainBlockContainer"] {
             padding-top: 4rem !important;
+        }
+        [class*="st-key-fintrack-metrics"] [data-testid="stHorizontalBlock"] {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+        [class*="st-key-fintrack-metrics"] [data-testid="stColumn"] {
+            width: auto !important;
+            min-width: 0 !important;
+            flex: initial !important;
+        }
+        .fintrack-metric-card {
+            min-height: 104px;
+            padding: 1rem 0.9rem;
+            border: 1px solid rgba(180, 199, 215, 0.48);
+            border-radius: 0.9rem;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 5px 16px rgba(24, 57, 82, 0.055);
+            transition: transform 170ms ease, box-shadow 170ms ease, border-color 170ms ease;
+        }
+        .fintrack-metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(61, 141, 137, 0.32);
+            box-shadow: 0 9px 22px rgba(24, 57, 82, 0.1);
+        }
+        .fintrack-metric-label {
+            color: #64778b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .fintrack-metric-value {
+            margin-top: 0.55rem;
+            color: #183653;
+            font-size: clamp(1rem, 1.35vw, 1.35rem);
+            font-weight: 750;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+        .fintrack-metric-value.positive {
+            color: #13775d;
+        }
+        .fintrack-metric-value.negative {
+            color: #b54747;
+        }
+        [class*="st-key-fintrack-demo-notice"] [data-testid="stAlert"] {
+            border: 1px solid rgba(87, 151, 190, 0.2);
+            border-left: 4px solid #3c8da3;
+            border-radius: 0.85rem;
+            background: rgba(239, 248, 253, 0.9);
+            box-shadow: 0 4px 14px rgba(33, 86, 117, 0.045);
+            color: #234c68;
+        }
+        [data-testid="stPlotlyChart"] {
+            border: 1px solid rgba(180, 199, 215, 0.4);
+            border-radius: 0.9rem;
+            background: rgba(255, 255, 255, 0.86);
+            box-shadow: 0 4px 16px rgba(24, 57, 82, 0.045);
+        }
+        [data-testid="stButton"] button,
+        [data-testid="stDownloadButton"] button {
+            border-radius: 0.7rem;
+            font-weight: 600;
+            transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+        }
+        [data-testid="stButton"] button:hover,
+        [data-testid="stDownloadButton"] button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(22, 130, 103, 0.45);
+            box-shadow: 0 4px 12px rgba(24, 57, 82, 0.08);
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            [class*="st-key-fintrack-metrics"] [data-testid="stHorizontalBlock"] {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 767px) {
+            [class*="st-key-fintrack-metrics"] [data-testid="stHorizontalBlock"] {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.65rem;
+            }
+            .fintrack-metric-card {
+                min-height: 92px;
+                padding: 0.85rem 0.75rem;
+            }
+            .fintrack-metric-label {
+                font-size: 0.76rem;
+            }
+            .fintrack-metric-value {
+                margin-top: 0.4rem;
+                font-size: clamp(0.95rem, 4.6vw, 1.2rem);
+            }
+            [data-testid="stMainBlockContainer"] h1 {
+                font-size: clamp(1.75rem, 7vw, 2.4rem);
+            }
         }
         [class*="st-key-fintrack-header"] {
             min-height: 72px;
