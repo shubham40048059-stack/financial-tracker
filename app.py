@@ -434,13 +434,6 @@ def main() -> None:
     )
 
     with st.sidebar.container(border=True):
-        logo_left, logo_center, logo_right = st.columns([0.1, 3, 0.1])
-        with logo_center:
-            st.image(str(BRAND_LOGO_PATH), width=190)
-
-    st.sidebar.markdown("---")
-
-    with st.sidebar.container(border=True):
         st.markdown("#### Navigation")
         options = get_page_options()
         selected = st.radio(
@@ -452,8 +445,13 @@ def main() -> None:
     st.session_state.page = selected
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("FinTrack · Personal Financial Tracker")
     st.sidebar.caption("Demo data is synthetic and contains no real banking information.")
+
+    with st.container(border=True):
+        _, brand_column = st.columns([3, 1])
+        with brand_column:
+            st.image(str(BRAND_LOGO_PATH), width=150)
+    st.divider()
 
     df = st.session_state.active_df
 
