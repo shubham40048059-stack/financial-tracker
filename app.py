@@ -428,6 +428,67 @@ def main() -> None:
         [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child {
             background: #168267;
         }
+        [data-testid="stMainBlockContainer"] {
+            padding-top: 4rem !important;
+        }
+        [class*="st-key-fintrack-header"] {
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            margin-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025);
+        }
+        [class*="st-key-fintrack-header"] > [data-testid="stElementContainer"] {
+            align-self: flex-start !important;
+        }
+        [class*="st-key-fintrack-header"] [data-testid="stImage"] {
+            margin: 0 !important;
+            display: flex;
+            justify-content: flex-start !important;
+        }
+        [class*="st-key-fintrack-header"] [data-testid="stImage"] > div {
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+        [class*="st-key-fintrack-header"] img {
+            display: block;
+            width: clamp(220px, 28vw, 270px) !important;
+            height: auto !important;
+        }
+        [data-testid="stExpandSidebarButton"],
+        [data-testid="stSidebarCollapseButton"] {
+            position: fixed !important;
+            top: 4rem !important;
+            right: 1.25rem !important;
+            left: auto !important;
+            z-index: 1001 !important;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            border-radius: 0.65rem;
+            background: #ffffff;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+        }
+        @media (max-width: 640px) {
+            [data-testid="stMainBlockContainer"] {
+                padding-top: 3.5rem !important;
+            }
+            [class*="st-key-fintrack-header"] {
+                min-height: 64px;
+                padding: 0 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+            [class*="st-key-fintrack-header"] img {
+                width: min(200px, 48vw) !important;
+            }
+            [data-testid="stExpandSidebarButton"],
+            [data-testid="stSidebarCollapseButton"] {
+                top: 3.5rem !important;
+                right: 0.75rem !important;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -447,11 +508,8 @@ def main() -> None:
     st.sidebar.markdown("---")
     st.sidebar.caption("Demo data is synthetic and contains no real banking information.")
 
-    with st.container(border=True):
-        _, brand_column, _ = st.columns([1, 2, 1])
-        with brand_column:
-            st.image(str(BRAND_LOGO_PATH), width="stretch")
-    st.divider()
+    with st.container(key="fintrack-header"):
+        st.image(str(BRAND_LOGO_PATH), width=270)
 
     df = st.session_state.active_df
 
