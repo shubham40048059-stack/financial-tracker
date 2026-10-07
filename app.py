@@ -448,9 +448,9 @@ def main() -> None:
     st.sidebar.caption("Demo data is synthetic and contains no real banking information.")
 
     with st.container(border=True):
-        _, brand_column = st.columns([3, 1])
+        _, brand_column, _ = st.columns([1, 2, 1])
         with brand_column:
-            st.image(str(BRAND_LOGO_PATH), width=150)
+            st.image(str(BRAND_LOGO_PATH), width="stretch")
     st.divider()
 
     df = st.session_state.active_df
