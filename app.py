@@ -401,12 +401,54 @@ def render_about() -> None:
 
 def main() -> None:
     initialize_session_state()
-    st.sidebar.image(str(BRAND_LOGO_PATH), width=210)
-    st.sidebar.caption("Personal Finance, Simplified")
+
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
+            border-color: rgba(100, 116, 139, 0.22);
+            border-radius: 1rem;
+            background: rgba(248, 250, 252, 0.72);
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioGroup"] {
+            gap: 0.3rem;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"] {
+            padding: 0.55rem 0.65rem !important;
+            border: 1px solid transparent;
+            border-radius: 0.7rem;
+            transition: background-color 120ms ease, border-color 120ms ease;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {
+            background: #eaf3ff;
+            border-color: #cbdff7;
+            color: #123b63;
+            font-weight: 700;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child {
+            background: #168267;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    with st.sidebar.container(border=True):
+        logo_left, logo_center, logo_right = st.columns([0.1, 3, 0.1])
+        with logo_center:
+            st.image(str(BRAND_LOGO_PATH), width=190)
+
     st.sidebar.markdown("---")
 
-    options = get_page_options()
-    selected = st.sidebar.radio("Navigation", options, index=options.index(st.session_state.page))
+    with st.sidebar.container(border=True):
+        st.markdown("#### Navigation")
+        options = get_page_options()
+        selected = st.radio(
+            "Navigation",
+            options,
+            index=options.index(st.session_state.page),
+            label_visibility="collapsed",
+        )
     st.session_state.page = selected
 
     st.sidebar.markdown("---")
