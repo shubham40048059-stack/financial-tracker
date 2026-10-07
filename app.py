@@ -406,27 +406,77 @@ def main() -> None:
         """
         <style>
         [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
-            border-color: rgba(100, 116, 139, 0.22);
-            border-radius: 1rem;
-            background: rgba(248, 250, 252, 0.72);
+            border: 1px solid rgba(100, 116, 139, 0.18);
+            border-radius: 0.9rem;
+            background: #f8fafc;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+        }
+        [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] h4 {
+            margin: 0 0 0.6rem;
+            color: #173c5a;
+            font-size: 1.05rem;
+            font-weight: 650;
         }
         [data-testid="stSidebar"] [data-testid="stRadioGroup"] {
-            gap: 0.3rem;
+            gap: 0.25rem;
         }
         [data-testid="stSidebar"] [data-testid="stRadioOption"] {
-            padding: 0.55rem 0.65rem !important;
+            position: relative;
+            min-height: 2.65rem;
+            padding: 0.65rem 0.75rem !important;
             border: 1px solid transparent;
-            border-radius: 0.7rem;
-            transition: background-color 120ms ease, border-color 120ms ease;
+            border-radius: 0.65rem;
+            color: #334155;
+            cursor: pointer;
+            transition: background-color 170ms ease, border-color 170ms ease, color 170ms ease;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child {
+            display: none;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"] p {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {
+            background: #edf5f3;
+            border-color: #d8e9e4;
+            color: #123b45;
         }
         [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {
-            background: #eaf3ff;
-            border-color: #cbdff7;
-            color: #123b63;
-            font-weight: 700;
+            background: #e8f4f1;
+            border-color: #c8e2da;
+            color: #123f45;
+            font-weight: 650;
         }
-        [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child {
+        [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"]::before {
+            position: absolute;
+            top: 0.55rem;
+            bottom: 0.55rem;
+            left: 0;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
             background: #168267;
+            content: "";
+        }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"]:focus-visible {
+            outline: 2px solid #168267;
+            outline-offset: 2px;
+        }
+        @media (min-width: 1024px) {
+            [data-testid="stSidebar"][aria-expanded="true"] {
+                width: 250px !important;
+                min-width: 250px !important;
+                max-width: 250px !important;
+            }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            [data-testid="stSidebar"][aria-expanded="true"] {
+                width: 230px !important;
+                min-width: 230px !important;
+                max-width: 230px !important;
+            }
         }
         [data-testid="stMainBlockContainer"] {
             padding-top: 4rem !important;
@@ -464,6 +514,9 @@ def main() -> None:
             right: 1.25rem !important;
             left: auto !important;
             z-index: 1001 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
             width: 2.5rem;
             height: 2.5rem;
             border: 1px solid rgba(100, 116, 139, 0.2);
