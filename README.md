@@ -1,6 +1,8 @@
-# Personal Financial Tracker
+# FinTrack — Personal Financial Tracker
 
-A portfolio-quality personal finance dashboard built with Python, Streamlit, Pandas, Plotly and OpenPyXL. It helps users review balance trends, expenses, income, monthly summaries and cash-flow performance using a synthetic demo dataset.
+**Personal Finance, Simplified.** FinTrack is a portfolio-quality personal finance dashboard built with Python, Streamlit, Pandas, Plotly and OpenPyXL. It helps users review balance trends, expenses, income, monthly summaries and cash-flow performance using a synthetic demo dataset.
+
+The FinTrack brand logo is included at `assets/fintrack-logo.png` and displayed in the app sidebar.
 
 ## Features
 

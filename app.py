@@ -21,7 +21,10 @@ from utils.analyzer import (
 from utils.data_loader import DEFAULT_DEMO_PATH, load_demo_data, load_uploaded_data
 from utils.helpers import format_inr
 
-st.set_page_config(page_title="Personal Financial Tracker", page_icon="💰", layout="wide")
+APP_ROOT = Path(__file__).resolve().parent
+BRAND_LOGO_PATH = APP_ROOT / "assets" / "fintrack-logo.png"
+
+st.set_page_config(page_title="FinTrack | Personal Financial Tracker", page_icon="💰", layout="wide")
 
 
 @st.cache_data
@@ -398,12 +401,16 @@ def render_about() -> None:
 
 def main() -> None:
     initialize_session_state()
+    st.sidebar.image(str(BRAND_LOGO_PATH), width=210)
+    st.sidebar.caption("Personal Finance, Simplified")
+    st.sidebar.markdown("---")
+
     options = get_page_options()
     selected = st.sidebar.radio("Navigation", options, index=options.index(st.session_state.page))
     st.session_state.page = selected
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("Personal Financial Tracker")
+    st.sidebar.caption("FinTrack · Personal Financial Tracker")
     st.sidebar.caption("Demo data is synthetic and contains no real banking information.")
 
     df = st.session_state.active_df
