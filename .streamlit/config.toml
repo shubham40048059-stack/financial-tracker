@@ -2,3 +2,16 @@
 headless = true
 port = 8501
 enableCORS = false
+
+[theme]
+base = "dark"
+primaryColor = "#168267"
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#111b2d"
+textColor = "#e2e8f0"
+
+[theme.sidebar]
+primaryColor = "#168267"
+backgroundColor = "#0e1726"
+secondaryBackgroundColor = "#111b2d"
+textColor = "#e2e8f0"

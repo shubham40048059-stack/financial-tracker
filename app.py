@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 from utils.analyzer import (
@@ -25,6 +26,18 @@ APP_ROOT = Path(__file__).resolve().parent
 BRAND_LOGO_PATH = APP_ROOT / "assets" / "fintrack-logo.png"
 
 st.set_page_config(page_title="FinTrack | Personal Financial Tracker", page_icon="💰", layout="wide")
+
+
+def render_chart(fig: go.Figure) -> None:
+    fig.update_layout(
+        paper_bgcolor="rgba(0, 0, 0, 0)",
+        plot_bgcolor="rgba(0, 0, 0, 0)",
+        font_color="#e2e8f0",
+        hoverlabel=dict(bgcolor="#172235", font_color="#e2e8f0"),
+        xaxis=dict(gridcolor="rgba(148, 163, 184, 0.16)", zerolinecolor="rgba(148, 163, 184, 0.24)"),
+        yaxis=dict(gridcolor="rgba(148, 163, 184, 0.16)", zerolinecolor="rgba(148, 163, 184, 0.24)"),
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 @st.cache_data
@@ -154,7 +167,7 @@ def render_dashboard(df: pd.DataFrame) -> None:
     fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Balance")
     fig.update_layout(height=420)
-    st.plotly_chart(fig, use_container_width=True)
+    render_chart(fig)
 
     monthly_df = monthly_summary(filtered)
     if not monthly_df.empty:
@@ -168,14 +181,14 @@ def render_dashboard(df: pd.DataFrame) -> None:
         )
         bar_fig.update_xaxes(title_text="Month")
         bar_fig.update_yaxes(title_text="Amount")
-        st.plotly_chart(bar_fig, use_container_width=True)
+        render_chart(bar_fig)
     else:
         st.info("No monthly data is available for the selected filter range.")
 
     category_df = expense_by_category(filtered)
     if not category_df.empty:
         pie_fig = px.pie(category_df, names="Category", values="Amount", title="Expense by Category", hole=0.45)
-        st.plotly_chart(pie_fig, use_container_width=True)
+        render_chart(pie_fig)
     else:
         st.info("No expense category data is available.")
 
@@ -190,7 +203,7 @@ def render_dashboard(df: pd.DataFrame) -> None:
         )
         expense_figure.update_xaxes(title_text="Month")
         expense_figure.update_yaxes(title_text="Expenses")
-        st.plotly_chart(expense_figure, use_container_width=True)
+        render_chart(expense_figure)
 
     spending_trend = filtered[filtered["Type"] == "Expense"].copy()
     if not spending_trend.empty:
@@ -200,7 +213,7 @@ def render_dashboard(df: pd.DataFrame) -> None:
         spending_fig = px.line(spending_trend, x="Date", y="Expense", title="Spending Trend", template="plotly_white")
         spending_fig.update_xaxes(title_text="Date")
         spending_fig.update_yaxes(title_text="Expenses")
-        st.plotly_chart(spending_fig, use_container_width=True)
+        render_chart(spending_fig)
 
     top_expenses_df = top_expenses(filtered, 10)
     if not top_expenses_df.empty:
@@ -214,14 +227,14 @@ def render_dashboard(df: pd.DataFrame) -> None:
         )
         top_fig.update_xaxes(title_text="Amount")
         top_fig.update_yaxes(title_text="Description")
-        st.plotly_chart(top_fig, use_container_width=True)
+        render_chart(top_fig)
 
     dist_df = transaction_distribution(filtered)
     if not dist_df.empty:
         dist_fig = px.bar(dist_df, x="Type", y="Count", title="Transaction Distribution", template="plotly_white")
         dist_fig.update_xaxes(title_text="Transaction Type")
         dist_fig.update_yaxes(title_text="Number of Transactions")
-        st.plotly_chart(dist_fig, use_container_width=True)
+        render_chart(dist_fig)
 
 
 def render_transactions(df: pd.DataFrame) -> None:
@@ -302,17 +315,17 @@ def render_analytics(df: pd.DataFrame) -> None:
     income_month_df = metrics["income_by_month"]
     if not income_month_df.empty:
         income_bar = px.bar(income_month_df, x="Month", y="Income", title="Income by Month", template="plotly_white")
-        st.plotly_chart(income_bar, use_container_width=True)
+        render_chart(income_bar)
 
     expense_category_df = metrics["expense_by_category"]
     if not expense_category_df.empty:
         exp_cat = px.bar(expense_category_df, x="Category", y="Amount", title="Expense by Category", template="plotly_white")
-        st.plotly_chart(exp_cat, use_container_width=True)
+        render_chart(exp_cat)
 
     top_10 = metrics["top_10_expenses"]
     if not top_10.empty:
         top_fig = px.bar(top_10, x="Expense", y="Description", orientation="h", title="Top 10 Expenses", template="plotly_white")
-        st.plotly_chart(top_fig, use_container_width=True)
+        render_chart(top_fig)
 
     st.markdown("### Cash Flow")
     cash_flow_rate = (net_cash / total_income * 100) if total_income > 0 else 0
@@ -337,7 +350,7 @@ def render_analytics(df: pd.DataFrame) -> None:
             title="Monthly Income, Expenses and Net Cash Flow",
             template="plotly_white",
         )
-        st.plotly_chart(comparison_chart, use_container_width=True)
+        render_chart(comparison_chart)
 
         best_cash = comparison.loc[comparison["Net Cash Flow"].idxmax()]
         highest_spending = comparison.loc[comparison["Expenses"].idxmax()]
@@ -407,44 +420,71 @@ def main() -> None:
     st.markdown(
         """
         <style>
+        html,
+        body,
+        [data-testid="stApp"],
         [data-testid="stAppViewContainer"] {
+            background-color: #0b1220 !important;
             background:
                 radial-gradient(ellipse at 8% 8%, rgba(87, 170, 216, 0.08), transparent 32rem),
                 radial-gradient(ellipse at 92% 18%, rgba(43, 166, 132, 0.07), transparent 30rem),
-                linear-gradient(135deg, #f5f9ff 0%, #eefaf7 50%, #f8fbff 100%);
+                linear-gradient(135deg, #0b1220 0%, #101b2d 50%, #0b1220 100%) !important;
+            color-scheme: dark;
+        }
+        [data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
+            background: transparent !important;
         }
         [data-testid="stMain"],
-        [data-testid="stMainBlockContainer"] {
-            background: transparent;
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stElementContainer"] {
+            background: transparent !important;
+            min-width: 0;
+        }
+        [data-testid="stAppViewContainer"] {
+            overflow-x: clip;
         }
         [data-testid="stMainBlockContainer"] {
-            color: #18334f;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            padding-right: clamp(0.85rem, 2.5vw, 2.5rem);
+            padding-left: clamp(0.85rem, 2.5vw, 2.5rem);
+        }
+        [data-testid="stMainBlockContainer"] {
+            color: #e2e8f0;
         }
         [data-testid="stMainBlockContainer"] h1,
         [data-testid="stMainBlockContainer"] h2,
         [data-testid="stMainBlockContainer"] h3 {
-            color: #173653;
+            color: #f1f5f9;
             letter-spacing: -0.025em;
         }
         [data-testid="stMainBlockContainer"] h1 {
             font-weight: 750;
         }
         [data-testid="stMainBlockContainer"] [data-testid="stCaptionContainer"] {
-            color: #64778b;
+            color: #94a3b8;
         }
         [data-testid="stSidebar"] {
-            background: rgba(246, 250, 253, 0.96);
-            border-right: 1px solid rgba(89, 119, 143, 0.12);
+            background: #0e1726 !important;
+            border-right: 1px solid rgba(148, 163, 184, 0.14);
+        }
+        [data-testid="stSidebar"] [data-testid="stSidebarContent"],
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+            background: transparent !important;
         }
         [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
-            border: 1px solid rgba(100, 116, 139, 0.18);
+            border: 1px solid rgba(148, 163, 184, 0.18);
             border-radius: 0.9rem;
-            background: #f8fafc;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+            background: #111b2d !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
         }
         [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] h4 {
             margin: 0 0 0.6rem;
-            color: #173c5a;
+            color: #f1f5f9;
             font-size: 1.05rem;
             font-weight: 650;
         }
@@ -457,7 +497,7 @@ def main() -> None:
             padding: 0.65rem 0.75rem !important;
             border: 1px solid transparent;
             border-radius: 0.65rem;
-            color: #334155;
+            color: #cbd5e1;
             cursor: pointer;
             transition: background-color 170ms ease, border-color 170ms ease, color 170ms ease;
         }
@@ -471,14 +511,14 @@ def main() -> None:
             line-height: 1.35;
         }
         [data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {
-            background: #edf5f3;
-            border-color: #d8e9e4;
-            color: #123b45;
+            background: #172638;
+            border-color: rgba(148, 163, 184, 0.22);
+            color: #f1f5f9;
         }
         [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {
-            background: #e8f4f1;
-            border-color: #c8e2da;
-            color: #123f45;
+            background: rgba(22, 130, 103, 0.2);
+            border-color: rgba(22, 130, 103, 0.45);
+            color: #d1fae5;
             font-weight: 650;
         }
         [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"]::before {
@@ -525,50 +565,85 @@ def main() -> None:
         .fintrack-metric-card {
             min-height: 104px;
             padding: 1rem 0.9rem;
-            border: 1px solid rgba(180, 199, 215, 0.48);
+            border: 1px solid rgba(148, 163, 184, 0.2);
             border-radius: 0.9rem;
-            background: rgba(255, 255, 255, 0.88);
-            box-shadow: 0 5px 16px rgba(24, 57, 82, 0.055);
+            background: #111b2d;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.18);
             transition: transform 170ms ease, box-shadow 170ms ease, border-color 170ms ease;
         }
         .fintrack-metric-card:hover {
             transform: translateY(-2px);
-            border-color: rgba(61, 141, 137, 0.32);
-            box-shadow: 0 9px 22px rgba(24, 57, 82, 0.1);
+            border-color: rgba(61, 141, 137, 0.55);
+            box-shadow: 0 9px 22px rgba(0, 0, 0, 0.24);
         }
         .fintrack-metric-label {
-            color: #64778b;
+            color: #94a3b8;
             font-size: 0.8rem;
             font-weight: 600;
             line-height: 1.4;
         }
         .fintrack-metric-value {
             margin-top: 0.55rem;
-            color: #183653;
+            color: #f1f5f9;
             font-size: clamp(1rem, 1.35vw, 1.35rem);
             font-weight: 750;
             line-height: 1.2;
             overflow-wrap: anywhere;
         }
         .fintrack-metric-value.positive {
-            color: #13775d;
+            color: #34d399;
         }
         .fintrack-metric-value.negative {
-            color: #b54747;
+            color: #fb7185;
         }
         [class*="st-key-fintrack-demo-notice"] [data-testid="stAlert"] {
-            border: 1px solid rgba(87, 151, 190, 0.2);
+            border: 1px solid rgba(87, 151, 190, 0.26);
             border-left: 4px solid #3c8da3;
             border-radius: 0.85rem;
-            background: rgba(239, 248, 253, 0.9);
-            box-shadow: 0 4px 14px rgba(33, 86, 117, 0.045);
-            color: #234c68;
+            background: rgba(30, 64, 88, 0.45);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+            color: #dbeafe;
         }
         [data-testid="stPlotlyChart"] {
-            border: 1px solid rgba(180, 199, 215, 0.4);
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             border-radius: 0.9rem;
-            background: rgba(255, 255, 255, 0.86);
-            box-shadow: 0 4px 16px rgba(24, 57, 82, 0.045);
+            background: #111b2d;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        }
+        [data-testid="stPlotlyChart"] > div,
+        [data-testid="stPlotlyChart"] .js-plotly-plot,
+        [data-testid="stPlotlyChart"] .plot-container,
+        [data-testid="stPlotlyChart"] .svg-container {
+            max-width: 100% !important;
+            background: transparent !important;
+        }
+        [data-testid="stAlert"] {
+            background: #172235;
+            color: #e2e8f0;
+        }
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"],
+        [data-testid="stMetric"] {
+            background: transparent;
+            color: #e2e8f0;
+        }
+        [data-baseweb="select"] > div,
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        [data-testid="stDateInput"] input,
+        [data-testid="stTextArea"] textarea {
+            color: #e2e8f0;
+            background-color: #111b2d;
+            border-color: rgba(148, 163, 184, 0.25);
+        }
+        [data-testid="stButton"] button,
+        [data-testid="stDownloadButton"] button {
+            color: #e2e8f0;
+            background-color: #172235;
+            border-color: rgba(148, 163, 184, 0.24);
         }
         [data-testid="stButton"] button,
         [data-testid="stDownloadButton"] button {
@@ -579,8 +654,8 @@ def main() -> None:
         [data-testid="stButton"] button:hover,
         [data-testid="stDownloadButton"] button:hover {
             transform: translateY(-1px);
-            border-color: rgba(22, 130, 103, 0.45);
-            box-shadow: 0 4px 12px rgba(24, 57, 82, 0.08);
+            border-color: rgba(22, 130, 103, 0.65);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         @media (min-width: 768px) and (max-width: 1023px) {
             [class*="st-key-fintrack-metrics"] [data-testid="stHorizontalBlock"] {
@@ -588,9 +663,27 @@ def main() -> None:
             }
         }
         @media (max-width: 767px) {
+            [data-testid="stMainBlockContainer"] {
+                padding-right: 0.85rem;
+                padding-left: 0.85rem;
+            }
+            [data-testid="stHorizontalBlock"] {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+                box-sizing: border-box;
+                width: 100% !important;
+                min-width: 0 !important;
+                flex: 1 1 100% !important;
+            }
             [class*="st-key-fintrack-metrics"] [data-testid="stHorizontalBlock"] {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.65rem;
+            }
+            [class*="st-key-fintrack-metrics"] [data-testid="stColumn"] {
+                width: auto !important;
+                flex: initial !important;
             }
             .fintrack-metric-card {
                 min-height: 92px;
@@ -615,6 +708,7 @@ def main() -> None:
             margin-bottom: 0.4rem;
             border-bottom: 1px solid rgba(100, 116, 139, 0.2);
             box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025);
+            background: transparent !important;
         }
         [class*="st-key-fintrack-header"] > [data-testid="stElementContainer"] {
             align-self: flex-start !important;
@@ -645,10 +739,11 @@ def main() -> None:
             pointer-events: auto !important;
             width: 2.5rem;
             height: 2.5rem;
-            border: 1px solid rgba(100, 116, 139, 0.2);
+            border: 1px solid rgba(148, 163, 184, 0.24);
             border-radius: 0.65rem;
-            background: #ffffff;
-            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+            background: #172235;
+            color: #e2e8f0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
         }
         @media (max-width: 640px) {
             [data-testid="stMainBlockContainer"] {
