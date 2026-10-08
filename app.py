@@ -74,6 +74,7 @@ def render_sidebar_filters(df: pd.DataFrame):
         value=(min_date, max_date),
         min_value=min_date,
         max_value=max_date,
+        format="DD/MM/YYYY",
     )
 
     type_filter = st.sidebar.selectbox("Transaction Type", ["All", "Income", "Expense"])
@@ -164,7 +165,7 @@ def render_dashboard(df: pd.DataFrame) -> None:
 
     balance_df = balance_trend(filtered)
     fig = px.line(balance_df, x="Date", y="Balance", title="Balance Trend", template="plotly_white")
-    fig.update_xaxes(title_text="Date")
+    fig.update_xaxes(title_text="Date", tickformat="%d/%m/%Y", hoverformat="%d/%m/%Y")
     fig.update_yaxes(title_text="Balance")
     fig.update_layout(height=420)
     render_chart(fig)
@@ -211,7 +212,7 @@ def render_dashboard(df: pd.DataFrame) -> None:
         spending_trend = spending_trend.dropna(subset=["Date"]).sort_values("Date")
         spending_trend = spending_trend.groupby("Date", as_index=False)["Expense"].sum()
         spending_fig = px.line(spending_trend, x="Date", y="Expense", title="Spending Trend", template="plotly_white")
-        spending_fig.update_xaxes(title_text="Date")
+        spending_fig.update_xaxes(title_text="Date", tickformat="%d/%m/%Y", hoverformat="%d/%m/%Y")
         spending_fig.update_yaxes(title_text="Expenses")
         render_chart(spending_fig)
 
@@ -258,7 +259,7 @@ def render_transactions(df: pd.DataFrame) -> None:
         return
 
     display_df = filtered.copy()
-    display_df["Date"] = pd.to_datetime(display_df["Date"]).dt.strftime("%Y-%m-%d")
+    display_df["Date"] = pd.to_datetime(display_df["Date"]).dt.strftime("%d/%m/%Y")
     display_df["Income"] = display_df["Income"].map(lambda x: format_inr(x))
     display_df["Expense"] = display_df["Expense"].map(lambda x: format_inr(x))
     display_df["Balance"] = display_df["Balance"].map(lambda x: format_inr(x))
