@@ -69,13 +69,24 @@ def render_sidebar_filters(df: pd.DataFrame):
     min_date = date_values.min().date()
     max_date = date_values.max().date()
 
-    start_date, end_date = st.sidebar.date_input(
-        "Date range",
-        value=(min_date, max_date),
+    start_date = st.sidebar.date_input(
+        "Start date",
+        value=min_date,
         min_value=min_date,
         max_value=max_date,
         format="DD/MM/YYYY",
+        key="filter_start_date",
     )
+    end_date = st.sidebar.date_input(
+        "End date",
+        value=max_date,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD/MM/YYYY",
+        key="filter_end_date",
+    )
+    if start_date > end_date:
+        st.sidebar.warning("Start date must be on or before end date.")
 
     type_filter = st.sidebar.selectbox("Transaction Type", ["All", "Income", "Expense"])
     categories = ["All"] + sorted(df["Category"].dropna().unique().tolist())
