@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 
 import pandas as pd
@@ -712,32 +713,60 @@ def main() -> None:
                 font-size: clamp(1.75rem, 7vw, 2.4rem);
             }
         }
-        [class*="st-key-fintrack-header"] {
-            min-height: 72px;
+        .fintrack-brand-header {
+            box-sizing: border-box;
+            min-height: 112px;
             display: flex;
             align-items: center;
-            padding: 0 0.75rem;
-            margin-bottom: 0.4rem;
+            gap: 1rem;
+            padding: 0.55rem 0.9rem 0.8rem;
+            margin-bottom: 0.75rem;
             border-bottom: 1px solid rgba(100, 116, 139, 0.2);
-            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025);
-            background: transparent !important;
+            min-width: 0;
         }
-        [class*="st-key-fintrack-header"] > [data-testid="stElementContainer"] {
-            align-self: flex-start !important;
+        .fintrack-brand-mark {
+            box-sizing: border-box;
+            position: relative;
+            flex: 0 0 92px;
+            width: 92px;
+            height: 92px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            background: #f8fafc;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
         }
-        [class*="st-key-fintrack-header"] [data-testid="stImage"] {
-            margin: 0 !important;
-            display: flex;
-            justify-content: flex-start !important;
-        }
-        [class*="st-key-fintrack-header"] [data-testid="stImage"] > div {
-            margin-left: 0 !important;
-            margin-right: auto !important;
-        }
-        [class*="st-key-fintrack-header"] img {
+        .fintrack-brand-mark img {
+            position: absolute;
+            top: 50%;
+            left: 0;
             display: block;
-            width: clamp(220px, 28vw, 270px) !important;
-            height: auto !important;
+            width: 276px;
+            max-width: none;
+            height: 92px;
+            object-fit: fill;
+            transform: translateY(-50%);
+        }
+        .fintrack-brand-copy {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.12rem;
+        }
+        .fintrack-brand-name {
+            color: #f1f5f9;
+            font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.045em;
+            line-height: 1.05;
+        }
+        .fintrack-brand-slogan {
+            color: #cbd5e1;
+            font-size: 1rem;
+            font-weight: 550;
+            line-height: 1.4;
+            white-space: nowrap;
         }
         [data-testid="stExpandSidebarButton"],
         [data-testid="stSidebarCollapseButton"] {
@@ -761,13 +790,27 @@ def main() -> None:
             [data-testid="stMainBlockContainer"] {
                 padding-top: 3.5rem !important;
             }
-            [class*="st-key-fintrack-header"] {
-                min-height: 64px;
-                padding: 0 0.5rem;
-                margin-bottom: 0.5rem;
+            .fintrack-brand-header {
+                min-height: 88px;
+                gap: 0.75rem;
+                padding: 0.5rem 0.25rem 0.65rem;
+                margin-bottom: 0.6rem;
             }
-            [class*="st-key-fintrack-header"] img {
-                width: min(200px, 48vw) !important;
+            .fintrack-brand-mark {
+                flex-basis: 72px;
+                width: 72px;
+                height: 72px;
+                border-radius: 0.8rem;
+            }
+            .fintrack-brand-mark img {
+                width: 216px;
+                height: 72px;
+            }
+            .fintrack-brand-name {
+                font-size: clamp(1.55rem, 7vw, 2rem);
+            }
+            .fintrack-brand-slogan {
+                font-size: clamp(0.82rem, 3.7vw, 0.98rem);
             }
             [data-testid="stExpandSidebarButton"],
             [data-testid="stSidebarCollapseButton"] {
@@ -794,8 +837,21 @@ def main() -> None:
     st.sidebar.markdown("---")
     st.sidebar.caption("Demo data is synthetic and contains no real banking information.")
 
-    with st.container(key="fintrack-header"):
-        st.image(str(BRAND_LOGO_PATH), width=270)
+    logo_data = base64.b64encode(BRAND_LOGO_PATH.read_bytes()).decode("ascii")
+    st.markdown(
+        f"""
+        <div class="fintrack-brand-header">
+            <div class="fintrack-brand-mark">
+                <img src="data:image/png;base64,{logo_data}" alt="FinTrack - Personal Finance, Simplified">
+            </div>
+            <div class="fintrack-brand-copy">
+                <div class="fintrack-brand-name">FinTrack</div>
+                <div class="fintrack-brand-slogan">Personal Finance, Simplified</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     df = st.session_state.active_df
 
